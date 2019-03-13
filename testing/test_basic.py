@@ -447,3 +447,20 @@ def test_pytest_from_reactor_thread(testdir, request):
     assert_outcomes(rr, {"passed": 1, "failed": 1})
     # test embedded mode:
     assert testdir.run(sys.executable, "runner.py").ret == 0
+
+
+def test_wrong_reactor_with_asyncio(testdir, cmd_opts, request):
+    skip_if_reactor_not(request, "asyncio")
+    conftest_file = """
+    def pytest_addhooks():
+        import twisted.internet.default
+        twisted.internet.default.install()
+    """
+    testdir.makeconftest(conftest_file)
+    test_file = """
+    def test_succeed():
+        pass
+    """
+    testdir.makepyfile(test_file)
+    rr = testdir.run(sys.executable, "-m", "pytest", "-v", *cmd_opts)
+    assert "WrongReactorAlreadyInstalledError" in rr.stderr.str()

@@ -170,9 +170,16 @@ def init_qt5_reactor():
         reactor_installer=qt5reactor.install, reactor_type=qt5reactor.QtReactor
     )
 
+def init_asyncio_reactor():
+    import twisted.internet.asyncioreactor
+    _install_reactor(
+        reactor_installer=twisted.internet.asyncioreactor.install,
+        reactor_type=twisted.internet.asyncioreactor.AsyncioSelectorReactor,
+    )
 
 reactor_installers = {
     "default": init_default_reactor,
+    "asyncio": init_asyncio_reactor,
     "qt5reactor": init_qt5_reactor,
 }
 
